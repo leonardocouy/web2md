@@ -1,6 +1,6 @@
 {
   "name": "@leoflores/web2md",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Render web pages with a locally installed Chromium-family browser (Puppeteer) and convert the main content to clean Markdown.",
   "author": "Leonardo Flores",
   "license": "MIT",
