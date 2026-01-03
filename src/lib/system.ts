@@ -1,5 +1,5 @@
-import fs from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 async function isExecutable(filePath: string): Promise<boolean> {
@@ -40,11 +40,9 @@ export async function findChromeExecutable(): Promise<string | null> {
   }
 
   if (platform === "win32") {
-    const prefixes = [
-      process.env.PROGRAMFILES,
-      process.env["PROGRAMFILES(X86)"],
-      process.env.LOCALAPPDATA,
-    ].filter(Boolean) as string[];
+    const prefixes = [process.env.PROGRAMFILES, process.env["PROGRAMFILES(X86)"], process.env.LOCALAPPDATA].filter(
+      Boolean,
+    ) as string[];
     const suffixes = [
       "Google\\Chrome\\Application\\chrome.exe",
       "Chromium\\Application\\chrome.exe",

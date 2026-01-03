@@ -5,4 +5,3 @@ export function normalizeMarkdown(md: string): string {
   out = out.replace(/^\n+/, "");
   return out.trimEnd();
 }
-

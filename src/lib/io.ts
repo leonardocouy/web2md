@@ -1,10 +1,8 @@
-import path from "node:path";
 import { statSync } from "node:fs";
+import path from "node:path";
 
 function slugify(input: string): string {
-  const ascii = input
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "");
+  const ascii = input.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
   const cleaned = ascii
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

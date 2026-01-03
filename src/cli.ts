@@ -1,65 +1,44 @@
 #!/usr/bin/env node
-import { Command } from "commander";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { writeFile, mkdir } from "node:fs/promises";
+import { Command } from "commander";
 
 import { convertUrlToMarkdown } from "./lib/convert.js";
 import { ensureOutPath } from "./lib/io.js";
 import type { WaitEvent } from "./lib/types.js";
 
-const VALID_WAIT_EVENTS: WaitEvent[] = [
-  "load",
-  "domcontentloaded",
-  "networkidle0",
-  "networkidle2",
-];
+const VALID_WAIT_EVENTS: WaitEvent[] = ["load", "domcontentloaded", "networkidle0", "networkidle2"];
 
 const program = new Command();
 
 program
   .name("web2md")
   .description(
-    "Render a webpage with a locally installed Chromium-family browser (Puppeteer) and convert the main content to clean Markdown."
+    "Render a webpage with a locally installed Chromium-family browser (Puppeteer) and convert the main content to clean Markdown.",
   )
   .argument("<url>", "URL to convert")
   .option("--out <path>", "Output file path or directory")
   .option("--print", "Print markdown to stdout instead of writing a file", false)
-  .option(
-    "--chrome-path <path>",
-    "Chrome/Chromium executable path (auto-detected if omitted)"
-  )
-  .option(
-    "--headful",
-    "Run with a visible browser window (default: headless)",
-    false
-  )
+  .option("--chrome-path <path>", "Chrome/Chromium executable path (auto-detected if omitted)")
+  .option("--headful", "Run with a visible browser window (default: headless)", false)
   .option(
     "--interactive",
     "Show the browser and pause so you can complete human checks/login, then press Enter to continue",
-    false
+    false,
   )
-  .option(
-    "--no-sandbox",
-    "Pass --no-sandbox flags to Chrome (sometimes required in CI/containers)"
-  )
+  .option("--no-sandbox", "Pass --no-sandbox flags to Chrome (sometimes required in CI/containers)")
   .option(
     "--wait-until <event>",
     "Navigation wait condition: load|domcontentloaded|networkidle0|networkidle2",
-    "networkidle2"
+    "networkidle2",
   )
   .option("--timeout-ms <ms>", "Navigation timeout in ms", "45000")
   .option("--wait-for <css>", "Wait for a CSS selector after navigation")
   .option("--wait-ms <ms>", "Extra wait time after navigation in ms", "0")
   .option("--user-agent <ua>", "Override user agent")
-  .option(
-    "--user-data-dir <path>",
-    "Chrome user data directory (profile). Prefer a dedicated automation profile."
-  )
-  .option(
-    "--no-auto-scroll",
-    "Disable the small auto-scroll pass used to trigger lazy-loaded content"
-  )
+  .option("--user-data-dir <path>", "Chrome user data directory (profile). Prefer a dedicated automation profile.")
+  .option("--no-auto-scroll", "Disable the small auto-scroll pass used to trigger lazy-loaded content")
   .option("--frontmatter", "Include YAML frontmatter metadata", true)
   .option("--no-frontmatter", "Do not include YAML frontmatter metadata")
   .option("--title <title>", "Override title used in output filename/frontmatter")
@@ -96,9 +75,7 @@ function parseOptions(opts: CliOptions) {
     throw new Error("--wait-ms must be a non-negative integer");
   }
   if (!VALID_WAIT_EVENTS.includes(waitUntil)) {
-    throw new Error(
-      `--wait-until must be one of: ${VALID_WAIT_EVENTS.join(", ")}`
-    );
+    throw new Error(`--wait-until must be one of: ${VALID_WAIT_EVENTS.join(", ")}`);
   }
 
   return { timeoutMs, waitMs, noSandbox, waitUntil };

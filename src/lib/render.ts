@@ -1,19 +1,15 @@
 import fs from "node:fs/promises";
+import { createInterface } from "node:readline/promises";
 import puppeteer from "puppeteer-core";
 import { findChromeExecutable } from "./system.js";
-import { createInterface } from "node:readline/promises";
 import type { BrowserOptions, RenderResult } from "./types.js";
 
 export type { RenderResult };
 
-export async function renderPageHtml(
-  opts: BrowserOptions
-): Promise<RenderResult> {
+export async function renderPageHtml(opts: BrowserOptions): Promise<RenderResult> {
   const executablePath = opts.chromePath || (await findChromeExecutable());
   if (!executablePath) {
-    throw new Error(
-      "Could not find Chrome/Chromium. Provide --chrome-path (e.g. /usr/bin/google-chrome)."
-    );
+    throw new Error("Could not find Chrome/Chromium. Provide --chrome-path (e.g. /usr/bin/google-chrome).");
   }
 
   const args: string[] = ["--disable-dev-shm-usage"];
@@ -50,7 +46,7 @@ export async function renderPageHtml(
       });
       try {
         await rl.question(
-          "Interactive mode: complete any checks/login in the Chrome window, then press Enter here to continue..."
+          "Interactive mode: complete any checks/login in the Chrome window, then press Enter here to continue...",
         );
       } finally {
         rl.close();

@@ -26,4 +26,3 @@ export function buildFrontmatter(input: {
   lines.push("---");
   return lines.join("\n");
 }
-

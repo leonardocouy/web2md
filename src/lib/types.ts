@@ -1,8 +1,4 @@
-export type WaitEvent =
-  | "load"
-  | "domcontentloaded"
-  | "networkidle0"
-  | "networkidle2";
+export type WaitEvent = "load" | "domcontentloaded" | "networkidle0" | "networkidle2";
 
 export interface BrowserOptions {
   url: string;

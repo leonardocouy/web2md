@@ -1,10 +1,9 @@
-import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
-
-import { renderPageHtml } from "./render.js";
-import { htmlToMarkdown } from "./markdown.js";
+import { JSDOM } from "jsdom";
 import { buildFrontmatter } from "./frontmatter.js";
+import { htmlToMarkdown } from "./markdown.js";
 import { normalizeMarkdown } from "./normalize.js";
+import { renderPageHtml } from "./render.js";
 import type { ConvertOptions, ConvertResult } from "./types.js";
 
 export type { ConvertOptions, ConvertResult };
@@ -63,9 +62,7 @@ function absolutizeLinksInDom(doc: Document): void {
   }
 }
 
-export async function convertUrlToMarkdown(
-  opts: ConvertOptions
-): Promise<ConvertResult> {
+export async function convertUrlToMarkdown(opts: ConvertOptions): Promise<ConvertResult> {
   const rendered = await renderPageHtml({
     url: opts.url,
     chromePath: opts.chromePath,
@@ -91,20 +88,13 @@ export async function convertUrlToMarkdown(
   const reader = new Readability(doc, { keepClasses: false });
   const article = reader.parse();
 
-  const title =
-    opts.overrideTitle?.trim() ||
-    article?.title?.trim() ||
-    rendered.title.trim() ||
-    "untitled";
+  const title = opts.overrideTitle?.trim() || article?.title?.trim() || rendered.title.trim() || "untitled";
 
-  const mainHtml =
-    article?.content?.trim() ||
-    dom.window.document.body?.innerHTML?.trim() ||
-    "";
+  const mainHtml = article?.content?.trim() || dom.window.document.body?.innerHTML?.trim() || "";
 
   if (!mainHtml) {
     throw new Error(
-      "Empty HTML content after rendering/extraction. Try changing --wait-until or adding --wait-for/--wait-ms."
+      "Empty HTML content after rendering/extraction. Try changing --wait-until or adding --wait-for/--wait-ms.",
     );
   }
 
@@ -122,9 +112,9 @@ export async function convertUrlToMarkdown(
       lang: dom.window.document.documentElement?.lang,
       fetchedAt: new Date().toISOString(),
     });
-    md = `${fm}\n\n${md}`.trimEnd() + "\n";
+    md = `${`${fm}\n\n${md}`.trimEnd()}\n`;
   } else {
-    md = md.trimEnd() + "\n";
+    md = `${md.trimEnd()}\n`;
   }
 
   return {
