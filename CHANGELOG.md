@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/leonardocouy/web2md/compare/v1.1.1...v1.2.0) (2026-01-03)
+
+
+### Features
+
+* fix package.json ([2381365](https://github.com/leonardocouy/web2md/commit/23813655f1b96839b57a6c030b41e4c852b07590))
+
 ## [1.1.1](https://github.com/leonardocouy/web2md/compare/v1.1.0...v1.1.1) (2026-01-03)
 
 
