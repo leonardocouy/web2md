@@ -1,8 +1,7 @@
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
-import { absolutizeLinks } from "./url.js";
 
-export function htmlToMarkdown(input: { html: string; baseUrl: string }): string {
+export function htmlToMarkdown(html: string): string {
   const service = new TurndownService({
     codeBlockStyle: "fenced",
     headingStyle: "atx",
@@ -19,6 +18,5 @@ export function htmlToMarkdown(input: { html: string; baseUrl: string }): string
     replacement: () => "",
   });
 
-  const md = service.turndown(input.html);
-  return absolutizeLinks(md, input.baseUrl);
+  return service.turndown(html);
 }

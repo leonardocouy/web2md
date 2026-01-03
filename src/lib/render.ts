@@ -2,30 +2,12 @@ import fs from "node:fs/promises";
 import puppeteer from "puppeteer-core";
 import { findChromeExecutable } from "./system.js";
 import { createInterface } from "node:readline/promises";
+import type { BrowserOptions, RenderResult } from "./types.js";
 
-export type RenderOptions = {
-  url: string;
-  chromePath?: string;
-  headless: boolean;
-  noSandbox: boolean;
-  waitUntil: "load" | "domcontentloaded" | "networkidle0" | "networkidle2";
-  timeoutMs: number;
-  waitForSelector?: string;
-  waitMs: number;
-  userAgent?: string;
-  userDataDir?: string;
-  autoScroll: boolean;
-  interactive: boolean;
-};
-
-export type RenderResult = {
-  title: string;
-  finalUrl: string;
-  html: string;
-};
+export type { RenderResult };
 
 export async function renderPageHtml(
-  opts: RenderOptions
+  opts: BrowserOptions
 ): Promise<RenderResult> {
   const executablePath = opts.chromePath || (await findChromeExecutable());
   if (!executablePath) {

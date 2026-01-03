@@ -1,17 +1,47 @@
 {
-  "name": "web2md",
+  "name": "@leoflores/web2md",
   "version": "0.1.0",
-  "private": true,
-  "type": "module",
   "description": "Render web pages with a locally installed Chromium-family browser (Puppeteer) and convert the main content to clean Markdown.",
+  "author": "Leonardo Flores",
+  "license": "MIT",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "web2md": "./dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsx src/cli.ts",
     "build": "tsup",
     "postbuild": "node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "web2md",
+    "markdown",
+    "html-to-markdown",
+    "puppeteer",
+    "readability",
+    "turndown",
+    "web-scraping",
+    "cli",
+    "converter"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leonardocouy/web2md"
+  },
+  "homepage": "https://github.com/leonardocouy/web2md#readme",
+  "bugs": {
+    "url": "https://github.com/leonardocouy/web2md/issues"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
@@ -28,8 +58,5 @@
     "tsup": "^8.0.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
-  },
-  "engines": {
-    "node": ">=20"
   }
 }

@@ -5,29 +5,63 @@ import { renderPageHtml } from "./render.js";
 import { htmlToMarkdown } from "./markdown.js";
 import { buildFrontmatter } from "./frontmatter.js";
 import { normalizeMarkdown } from "./normalize.js";
+import type { ConvertOptions, ConvertResult } from "./types.js";
 
-export type ConvertOptions = {
-  url: string;
-  chromePath?: string;
-  headless: boolean;
-  noSandbox: boolean;
-  waitUntil: "load" | "domcontentloaded" | "networkidle0" | "networkidle2";
-  timeoutMs: number;
-  waitForSelector?: string;
-  waitMs: number;
-  userAgent?: string;
-  userDataDir?: string;
-  autoScroll: boolean;
-  interactive: boolean;
-  includeFrontmatter: boolean;
-  overrideTitle?: string;
-};
+export type { ConvertOptions, ConvertResult };
 
-export type ConvertResult = {
-  title: string;
-  url: string;
-  markdown: string;
-};
+const TRACKING_PARAMS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "fbclid",
+  "gclid",
+  "igshid",
+  "mc_cid",
+  "mc_eid",
+];
+
+function cleanUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    for (const param of TRACKING_PARAMS) {
+      parsed.searchParams.delete(param);
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function unwrapHeadingLinks(doc: Document): void {
+  // Remove <a> wrappers around headings (common in docs for anchor links)
+  // <a href="#foo"><h2>Title</h2></a> → <h2>Title</h2>
+  for (const a of doc.querySelectorAll("a")) {
+    const child = a.firstElementChild;
+    if (child && /^H[1-6]$/.test(child.nodeName) && a.childElementCount === 1) {
+      a.replaceWith(child);
+    }
+  }
+}
+
+function absolutizeLinksInDom(doc: Document): void {
+  // Absolutize and clean <a> links
+  for (const a of doc.querySelectorAll("a[href]")) {
+    const href = (a as HTMLAnchorElement).href; // JSDOM resolves to absolute
+    if (href) {
+      a.setAttribute("href", cleanUrl(href));
+    }
+  }
+
+  // Absolutize <img> sources
+  for (const img of doc.querySelectorAll("img[src]")) {
+    const src = (img as HTMLImageElement).src;
+    if (src) {
+      img.setAttribute("src", src);
+    }
+  }
+}
 
 export async function convertUrlToMarkdown(
   opts: ConvertOptions
@@ -48,9 +82,13 @@ export async function convertUrlToMarkdown(
   });
 
   const dom = new JSDOM(rendered.html, { url: rendered.finalUrl });
-  const reader = new Readability(dom.window.document, {
-    keepClasses: false,
-  });
+  const doc = dom.window.document;
+
+  // Clean up DOM before Readability extracts content
+  unwrapHeadingLinks(doc);
+  absolutizeLinksInDom(doc);
+
+  const reader = new Readability(doc, { keepClasses: false });
   const article = reader.parse();
 
   const title =
@@ -70,10 +108,7 @@ export async function convertUrlToMarkdown(
     );
   }
 
-  let md = htmlToMarkdown({
-    html: mainHtml,
-    baseUrl: rendered.finalUrl,
-  });
+  let md = htmlToMarkdown(mainHtml);
 
   md = normalizeMarkdown(md);
 

@@ -1,9 +1,19 @@
+#!/usr/bin/env node
 import { Command } from "commander";
 import path from "node:path";
 import process from "node:process";
+import { writeFile, mkdir } from "node:fs/promises";
 
 import { convertUrlToMarkdown } from "./lib/convert.js";
 import { ensureOutPath } from "./lib/io.js";
+import type { WaitEvent } from "./lib/types.js";
+
+const VALID_WAIT_EVENTS: WaitEvent[] = [
+  "load",
+  "domcontentloaded",
+  "networkidle0",
+  "networkidle2",
+];
 
 const program = new Command();
 
@@ -55,10 +65,7 @@ program
   .option("--title <title>", "Override title used in output filename/frontmatter")
   .showHelpAfterError();
 
-program.parse(process.argv);
-
-const url = program.args[0];
-const opts = program.opts<{
+interface CliOptions {
   out?: string;
   print: boolean;
   chromePath?: string;
@@ -74,63 +81,75 @@ const opts = program.opts<{
   autoScroll: boolean;
   frontmatter: boolean;
   title?: string;
-}>();
-
-const timeoutMs = Number.parseInt(opts.timeoutMs, 10);
-const waitMs = Number.parseInt(opts.waitMs, 10);
-const noSandbox = opts.sandbox === false;
-
-if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
-  console.error("--timeout-ms must be a positive integer");
-  process.exit(2);
-}
-if (!Number.isFinite(waitMs) || waitMs < 0) {
-  console.error("--wait-ms must be a non-negative integer");
-  process.exit(2);
 }
 
-const waitUntil = opts.waitUntil as
-  | "load"
-  | "domcontentloaded"
-  | "networkidle0"
-  | "networkidle2";
+function parseOptions(opts: CliOptions) {
+  const timeoutMs = Number.parseInt(opts.timeoutMs, 10);
+  const waitMs = Number.parseInt(opts.waitMs, 10);
+  const noSandbox = opts.sandbox === false;
+  const waitUntil = opts.waitUntil as WaitEvent;
 
-if (!["load", "domcontentloaded", "networkidle0", "networkidle2"].includes(waitUntil)) {
-  console.error(
-    "--wait-until must be one of: load, domcontentloaded, networkidle0, networkidle2"
-  );
-  process.exit(2);
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    throw new Error("--timeout-ms must be a positive integer");
+  }
+  if (!Number.isFinite(waitMs) || waitMs < 0) {
+    throw new Error("--wait-ms must be a non-negative integer");
+  }
+  if (!VALID_WAIT_EVENTS.includes(waitUntil)) {
+    throw new Error(
+      `--wait-until must be one of: ${VALID_WAIT_EVENTS.join(", ")}`
+    );
+  }
+
+  return { timeoutMs, waitMs, noSandbox, waitUntil };
 }
 
-const res = await convertUrlToMarkdown({
-  url,
-  chromePath: opts.chromePath,
-  headless: opts.interactive ? false : !opts.headful,
-  noSandbox,
-  waitUntil,
-  timeoutMs,
-  waitForSelector: opts.waitFor,
-  waitMs,
-  userAgent: opts.userAgent,
-  userDataDir: opts.userDataDir,
-  autoScroll: opts.autoScroll,
-  interactive: opts.interactive,
-  includeFrontmatter: opts.frontmatter,
-  overrideTitle: opts.title,
+async function main() {
+  program.parse(process.argv);
+
+  const url = program.args[0];
+  const opts = program.opts<CliOptions>();
+  const { timeoutMs, waitMs, noSandbox, waitUntil } = parseOptions(opts);
+
+  const res = await convertUrlToMarkdown({
+    url,
+    chromePath: opts.chromePath,
+    headless: opts.interactive ? false : !opts.headful,
+    noSandbox,
+    waitUntil,
+    timeoutMs,
+    waitForSelector: opts.waitFor,
+    waitMs,
+    userAgent: opts.userAgent,
+    userDataDir: opts.userDataDir,
+    autoScroll: opts.autoScroll,
+    interactive: opts.interactive,
+    includeFrontmatter: opts.frontmatter,
+    overrideTitle: opts.title,
+  });
+
+  if (opts.print || !opts.out) {
+    process.stdout.write(res.markdown);
+    if (!res.markdown.endsWith("\n")) {
+      process.stdout.write("\n");
+    }
+    return;
+  }
+
+  const outPath = ensureOutPath({
+    out: opts.out,
+    title: res.title,
+  });
+
+  // Ensure parent directory exists
+  await mkdir(path.dirname(outPath), { recursive: true });
+  await writeFile(outPath, res.markdown, "utf8");
+
+  console.error(`Saved: ${path.relative(process.cwd(), outPath)}`);
+}
+
+main().catch((err: unknown) => {
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(`Error: ${message}`);
+  process.exitCode = 1;
 });
-
-if (opts.print || !opts.out) {
-  process.stdout.write(res.markdown);
-  process.stdout.write(res.markdown.endsWith("\n") ? "" : "\n");
-  process.exit(0);
-}
-
-const outPath = ensureOutPath({
-  out: opts.out,
-  title: res.title,
-});
-
-const { writeFile } = await import("node:fs/promises");
-await writeFile(outPath, res.markdown, "utf8");
-
-console.error(`Saved: ${path.relative(process.cwd(), outPath)}`);

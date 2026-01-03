@@ -1,7 +1,7 @@
 ---
 title: "Tutorial: Tic-Tac-Toe - Zustand"
 url: "https://zustand.docs.pmnd.rs/guides/tutorial-tic-tac-toe"
-fetched_at: "2026-01-03T14:14:59.675Z"
+fetched_at: "2026-01-03T14:51:48.220Z"
 lang: en
 excerpt: Building a game
 ---
