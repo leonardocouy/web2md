@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/leonardocouy/web2md/compare/v1.0.0...v1.1.0) (2026-01-03)
+
+
+### Features
+
+* trigger ci ([dd65b87](https://github.com/leonardocouy/web2md/commit/dd65b87ee8bbd1cb9834ef41a9f50192a2f42b56))
+
 ## 1.0.0 (2026-01-03)
 
 
