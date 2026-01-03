@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/leonardocouy/web2md/compare/v1.1.0...v1.1.1) (2026-01-03)
+
+
+### Bug Fixes
+
+* remove duplicate shebang from source file ([905bbb9](https://github.com/leonardocouy/web2md/commit/905bbb92bddebc421591a2ebceca65430f21f331))
+
 ## [1.1.0](https://github.com/leonardocouy/web2md/compare/v1.0.0...v1.1.0) (2026-01-03)
 
 
