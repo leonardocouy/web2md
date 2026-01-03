@@ -1,16 +1,23 @@
 # web2md
 
-A command-line tool that renders web pages using a locally installed Chromium-family browser and converts the main content to clean Markdown.
+Convert web pages to clean Markdown for AI/LLM consumption.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm version](https://img.shields.io/npm/v/@leoflores/web2md)](https://www.npmjs.com/package/@leoflores/web2md)
 
 ## About
 
-Extracts the main article content from any webpage using Mozilla's Readability (the same algorithm behind Firefox Reader View) and converts it to GitHub-flavored Markdown with Turndown. Perfect for saving articles, documentation, or any web content for offline reading or AI processing.
+Built for feeding documentation, articles, and web content into AI assistants and LLMs. Renders JavaScript-heavy sites with a real browser, extracts the main content using Mozilla's Readability, and outputs clean GitHub-flavored Markdown.
+
+**Use cases:**
+- Feed documentation pages to Claude, ChatGPT, or other LLMs
+- Build knowledge bases from web content for RAG pipelines
+- Convert technical docs for AI-assisted coding workflows
+- Archive articles in a format that's easy to search and process
 
 ## Features
 
+- **AI-Ready Output** - Clean markdown optimized for LLM context windows
 - **Smart Extraction** - Uses Readability to identify and extract main article content
 - **Clean Markdown** - Converts to GFM with tables, strikethrough, and code blocks
 - **JS-Rendered Pages** - Full Puppeteer support for SPAs and dynamic content
